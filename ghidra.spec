@@ -1,3 +1,5 @@
+%global debug_package %{nil}
+
 Name:           ghidra
 Version:        11.3.2
 Release:        1%{?dist}
@@ -70,8 +72,7 @@ elif [ -f Ghidra/Framework/Generic/src/main/resources/images/GhidraIcon64.png ];
 elif [ -f docs/images/GHIDRA_1.png ]; then
     cp docs/images/GHIDRA_1.png %{buildroot}%{_datadir}/pixmaps/ghidra.png
 else
-    # Create a simple placeholder if no icon found
-    echo "Icon not found, creating placeholder"
+    echo "Icon not found"
 fi
 
 # Create man page directory and basic man page
@@ -100,9 +101,6 @@ EOF
 %{_datadir}/applications/ghidra.desktop
 %{_datadir}/pixmaps/ghidra.png
 %{_mandir}/man1/ghidra.1*
-
-# Don't automatically extract debug info from native libraries
-%global debug_package %{nil}
 
 %post
 # Update desktop database
