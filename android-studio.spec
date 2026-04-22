@@ -91,6 +91,9 @@ install -m0644 %{buildroot}%{_libdir}/android-studio/bin/studio.png \
 install -m0644 LICENSE.txt %{buildroot}%{_docdir}/%{name}/LICENSE.txt
 cp -a license %{buildroot}%{_docdir}/%{name}/license
 
+%check
+desktop-file-validate %{buildroot}%{_datadir}/applications/android-studio.desktop
+
 %files
 # populated in Task 5
 
