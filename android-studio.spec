@@ -40,7 +40,7 @@ On first launch, Android Studio's Setup Wizard downloads them into the
 user's home directory.
 
 %prep
-# populated in Task 2
+%setup -q -n android-studio
 
 %build
 # no build step — upstream ships pre-built binaries
