@@ -46,7 +46,50 @@ user's home directory.
 # no build step — upstream ships pre-built binaries
 
 %install
-# populated in Task 3
+# Directory skeleton
+mkdir -p %{buildroot}%{_libdir}/android-studio
+mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_datadir}/applications
+mkdir -p %{buildroot}%{_datadir}/icons/hicolor/scalable/apps
+mkdir -p %{buildroot}%{_datadir}/icons/hicolor/128x128/apps
+mkdir -p %{buildroot}%{_docdir}/%{name}
+
+# Payload: copy entire unpacked tree (preserve perms/symlinks)
+cp -a . %{buildroot}%{_libdir}/android-studio/
+
+# Wrapper script
+cat > %{buildroot}%{_bindir}/android-studio <<EOF
+#!/bin/bash
+exec %{_libdir}/android-studio/bin/studio.sh "\$@"
+EOF
+chmod 0755 %{buildroot}%{_bindir}/android-studio
+
+# Desktop entry
+cat > %{buildroot}%{_datadir}/applications/android-studio.desktop <<EOF
+[Desktop Entry]
+Name=Android Studio
+Comment=Official IDE for Android application development
+GenericName=Integrated Development Environment
+Exec=android-studio %f
+Icon=android-studio
+Terminal=false
+Type=Application
+Categories=Development;IDE;
+StartupNotify=true
+StartupWMClass=jetbrains-studio
+MimeType=application/x-extension-iml;
+Keywords=android;ide;development;kotlin;java;
+EOF
+
+# Icons (from bundled payload inside buildroot — do not re-copy from BUILD)
+install -m0644 %{buildroot}%{_libdir}/android-studio/bin/studio.svg \
+    %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/android-studio.svg
+install -m0644 %{buildroot}%{_libdir}/android-studio/bin/studio.png \
+    %{buildroot}%{_datadir}/icons/hicolor/128x128/apps/android-studio.png
+
+# Docs
+install -m0644 LICENSE.txt %{buildroot}%{_docdir}/%{name}/LICENSE.txt
+cp -a license %{buildroot}%{_docdir}/%{name}/license
 
 %files
 # populated in Task 5
