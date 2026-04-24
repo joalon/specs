@@ -3,6 +3,14 @@
 %global codename panda3
 %global patch    patch1
 
+# Suppress auto-generated Requires/Provides for bundled ELFs under the install
+# tree. Android Studio ships Android-bionic libs (libc.so, liblog.so,
+# libaaudio.so, libandroid.so, libmediandk.so, libperfetto.so, etc.) used by
+# native tools targeting Android — not the host. Without these filters, rpm
+# emits unresolvable Requires and dnf install fails.
+%global __requires_exclude_from ^%{_libdir}/android-studio/.*$
+%global __provides_exclude_from ^%{_libdir}/android-studio/.*$
+
 Name:           android-studio
 Version:        2025.3.3.7
 Release:        1%{?dist}
@@ -94,8 +102,28 @@ cp -a license %{buildroot}%{_docdir}/%{name}/license
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/android-studio.desktop
 
+%post
+/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
+/usr/bin/update-desktop-database %{_datadir}/applications &>/dev/null || :
+
+%postun
+if [ $1 -eq 0 ] ; then
+    /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+    /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+    /usr/bin/update-desktop-database %{_datadir}/applications &>/dev/null || :
+fi
+
+%posttrans
+/usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+
 %files
-# populated in Task 5
+%license %{_docdir}/%{name}/LICENSE.txt
+%doc %{_docdir}/%{name}/license
+%{_bindir}/android-studio
+%{_libdir}/android-studio/
+%{_datadir}/applications/android-studio.desktop
+%{_datadir}/icons/hicolor/scalable/apps/android-studio.svg
+%{_datadir}/icons/hicolor/128x128/apps/android-studio.png
 
 %changelog
 * Tue Apr 21 2026 Joakim Lönnegren <joakimlonnegren@gmail.com> - 2025.3.3.7-1
